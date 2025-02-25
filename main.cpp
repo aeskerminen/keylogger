@@ -53,13 +53,13 @@ LRESULT CALLBACK KeyboardCallback(const int nCode, const WPARAM wParam, const WP
     return CallNextHookEx(nullptr, nCode, wParam, lParam);
 }
 
-LRESULT CALLBACK MouseCallback(int nCode, WPARAM wParam, WPARAM lParam) {
+LRESULT CALLBACK MouseCallback(const int nCode, const WPARAM wParam, const WPARAM lParam) {
     const auto *mouseStruct = reinterpret_cast<MOUSEHOOKSTRUCT *>(lParam);
     const auto point = mouseStruct->pt;
 
     for (const int& x : MOUSE_CLICK_CHECKS) {
         if (checkModifierStatus(x)) {
-            HWND window = WindowFromPoint(point);
+            const HWND window = WindowFromPoint(point);
 
             constexpr size_t len = 256;
             char title_buffer[len];
@@ -71,8 +71,7 @@ LRESULT CALLBACK MouseCallback(int nCode, WPARAM wParam, WPARAM lParam) {
 
             char proc_buffer[len];
 
-            HANDLE procHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, procID);
-            if (procHandle) {
+            if (const HANDLE procHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, procID)) {
                 GetModuleBaseNameA(procHandle, nullptr, proc_buffer, len);
             }
 
@@ -86,8 +85,8 @@ LRESULT CALLBACK MouseCallback(int nCode, WPARAM wParam, WPARAM lParam) {
 }
 
 int main() {
-    const HHOOK keyboard = SetWindowsHookEx(WH_KEYBOARD_LL, HOOKPROC(&KeyboardCallback), nullptr, 0);
-    const HHOOK mouse = SetWindowsHookEx(WH_MOUSE_LL, HOOKPROC(&MouseCallback), nullptr, 0);
+    const HHOOK keyboard = SetWindowsHookEx(WH_KEYBOARD_LL, reinterpret_cast<HOOKPROC>(&KeyboardCallback), nullptr, 0);
+    const HHOOK mouse = SetWindowsHookEx(WH_MOUSE_LL, reinterpret_cast<HOOKPROC>(&MouseCallback), nullptr, 0);
 
     MSG message;
     while (GetMessage(&message, NULL, NULL, NULL) > 0) {
