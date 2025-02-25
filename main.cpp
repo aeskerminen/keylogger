@@ -89,7 +89,7 @@ int main() {
     const HHOOK mouse = SetWindowsHookEx(WH_MOUSE_LL, reinterpret_cast<HOOKPROC>(&MouseCallback), nullptr, 0);
 
     MSG message;
-    while (GetMessage(&message, NULL, NULL, NULL) > 0) {
+    while (GetMessage(&message, nullptr, 0, 0) > 0) {
         TranslateMessage(&message);
         DispatchMessage(&message);
     }
