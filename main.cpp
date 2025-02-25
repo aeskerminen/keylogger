@@ -29,10 +29,18 @@ void addCombinationModifier(std::string* input) {
     }
 }
 
+std::unordered_set<int> pressedKeys;
+
 LRESULT CALLBACK KeyboardCallback(const int nCode, const WPARAM wParam, const WPARAM lParam) {
     const auto *kbStruct = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
 
     if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
+        if (pressedKeys.contains(kbStruct->vkCode)) {
+            return CallNextHookEx(nullptr, nCode, wParam, lParam);
+        }
+
+        pressedKeys.insert(kbStruct->vkCode);
+
         char c = MapVirtualKey(kbStruct->vkCode, MAPVK_VK_TO_CHAR);
 
         std::string final;
@@ -48,6 +56,8 @@ LRESULT CALLBACK KeyboardCallback(const int nCode, const WPARAM wParam, const WP
        // cpr::Body{"{\"text\": \"" + body + "\"}"});
 
        // printf("%s\n", r.text.c_str());
+    } else if (wParam == WM_KEYUP || wParam == WM_SYSKEYUP) {
+        pressedKeys.erase(kbStruct->vkCode);
     }
 
     return CallNextHookEx(nullptr, nCode, wParam, lParam);
