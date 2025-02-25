@@ -1,5 +1,6 @@
 #include <iostream>
 #include <Windows.h>
+#include <Psapi.h>
 #include <cpr/cpr.h>
 
 #include "layouts.h"
@@ -61,11 +62,21 @@ LRESULT CALLBACK MouseCallback(int nCode, WPARAM wParam, WPARAM lParam) {
             HWND window = WindowFromPoint(point);
 
             const size_t len = 256;
-            char buffer[len];
+            char title_buffer[len];
 
-            GetWindowTextA(window, buffer, len);
+            GetWindowTextA(window, title_buffer, len);
 
-            printf("%s in %s\n", MOUSE_EVENT_TO_STRING.at(x), buffer);
+            DWORD procID;
+            GetWindowThreadProcessId(window, &procID);
+
+            char proc_buffer[len];
+
+            HANDLE procHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, procID);
+            if (procHandle) {
+                GetModuleBaseNameA(procHandle, nullptr, proc_buffer, len);
+            }
+
+            printf("%s in %s (%s)\n", MOUSE_EVENT_TO_STRING.at(x), proc_buffer, title_buffer);
         }
     }
 
