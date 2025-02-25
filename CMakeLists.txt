@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.30)
 project(keylogger)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_EXE_LINKER_FLAGS "-static")
 
 add_executable(keylogger main.cpp
         layouts.h)
