@@ -49,15 +49,28 @@ LRESULT CALLBACK KeyboardCallback(int nCode, WPARAM wParam, WPARAM lParam) {
     return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
+LRESULT CALLBACK MouseCallback(int nCode, WPARAM wParam, WPARAM lParam) {
+    auto *mouseStruct = reinterpret_cast<MOUSEHOOKSTRUCT *>(lParam);
+
+    auto point = mouseStruct->pt;
+
+    printf("x: %d, y: %d\n", point.x, point.y);
+
+    return CallNextHookEx(NULL, nCode, wParam, lParam);
+}
+
 int main() {
     HHOOK keyboard = SetWindowsHookEx(WH_KEYBOARD_LL, HOOKPROC(&KeyboardCallback), nullptr, 0);
+    HHOOK mouse = SetWindowsHookEx(WH_MOUSE_LL, HOOKPROC(&MouseCallback), nullptr, 0);
 
     MSG message;
     while (GetMessage(&message, NULL, NULL, NULL) > 0) {
         TranslateMessage(&message);
         DispatchMessage(&message);
     }
+
     UnhookWindowsHookEx(keyboard);
+    UnhookWindowsHookEx(mouse);
 
     return 0;
 }
