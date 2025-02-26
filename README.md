@@ -7,7 +7,7 @@ A keylogger targeting Windows platforms made in C++.
 - [ ] Clipboard Tracking
 - [ ] Timestamps
 - [ ] Screenshot capture
-- [ ] Network transmission
+- [x] Network transmission
 - [ ] Log encryption
 - [ ] Run-in-background
 - [ ] Persistence
