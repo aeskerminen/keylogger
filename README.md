@@ -4,7 +4,7 @@ A keylogger targeting Windows platforms made in C++.
 - [x] Keystroke logging
 - [x] Application tracking (partial)
 - [x] Key mapping (partial)
-- [ ] Clipboard Tracking
+- [x] Clipboard Tracking
 - [ ] Timestamps
 - [ ] Screenshot capture
 - [x] Network transmission
