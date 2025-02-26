@@ -4,12 +4,10 @@
 #include <cpr/cpr.h>
 
 #include "layouts.h"
+#include "MouseHandler.h"
 
 const char *DEBUG_URL = "http://127.0.0.1:8000/log";
 
-const std::unordered_map<int, const char *> MOUSE_EVENT_TO_STRING{
-    {VK_LBUTTON, "Left Click"}, {VK_RBUTTON, "Right Click"}
-};
 
 boolean checkModifierStatus(const int vkCode) {
     return (GetAsyncKeyState(vkCode) & 0x8000) != 0;
@@ -64,69 +62,7 @@ LRESULT CALLBACK KeyboardCallback(const int nCode, const WPARAM wParam, const WP
     return CallNextHookEx(nullptr, nCode, wParam, lParam);
 }
 
-struct ClickInfo {
-    DWORD64 clickTime;
-    POINT pos;
-    int type;
-} typedef ClickInfo;
 
-std::unordered_map<int, ClickInfo> clickMap;
-
-constexpr int doubleClickThresholdMS = 300;
-constexpr int doubleClickDistThreshold = 5;
-
-LRESULT CALLBACK MouseCallback(const int nCode, const WPARAM wParam, const WPARAM lParam) {
-    const auto *mouseStruct = reinterpret_cast<MOUSEHOOKSTRUCT *>(lParam);
-    const auto point = mouseStruct->pt;
-
-    if (wParam == WM_LBUTTONDOWN || wParam == WM_RBUTTONDOWN || wParam == WM_MBUTTONDOWN) {
-        int button = (wParam == WM_LBUTTONDOWN) ? VK_LBUTTON : (wParam == WM_RBUTTONDOWN) ? VK_RBUTTON : VK_MBUTTON;
-
-        const HWND window = WindowFromPoint(point);
-
-        constexpr size_t len = 256;
-        char title_buffer[len] = {0};
-
-        GetWindowTextA(window, title_buffer, len);
-
-        DWORD procID;
-        GetWindowThreadProcessId(window, &procID);
-
-        char proc_buffer[len] = {0};
-
-        if (const HANDLE procHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, procID)) {
-            GetModuleBaseNameA(procHandle, nullptr, proc_buffer, len);
-            CloseHandle(procHandle);
-        }
-
-        ClickInfo &lastClick = clickMap[button];
-
-        const DWORD64 curTime = GetTickCount64();
-        bool isDBLClick = false;
-
-        if (lastClick.type == button && curTime - lastClick.clickTime <= doubleClickThresholdMS) {
-            if (abs(lastClick.pos.x - point.x) < doubleClickDistThreshold &&
-                abs(lastClick.pos.y - point.y) < doubleClickDistThreshold) {
-                isDBLClick = true;
-            }
-        }
-
-        if (isDBLClick) {
-            printf("Double %s in %s (%s)\n", MOUSE_EVENT_TO_STRING.at(button), proc_buffer, title_buffer);
-        } else {
-            printf("%s in %s (%s)\n", MOUSE_EVENT_TO_STRING.at(button), proc_buffer, title_buffer);
-        }
-
-        lastClick.clickTime = curTime;
-        lastClick.pos = point;
-        lastClick.type = button;
-    }
-
-
-    //printf("x: %d, y: %d\n", point.x, point.y);
-
-    return CallNextHookEx(nullptr, nCode, wParam, lParam);
-}
 
 int main() {
     const HHOOK keyboard = SetWindowsHookEx(WH_KEYBOARD_LL, reinterpret_cast<HOOKPROC>(&KeyboardCallback), nullptr, 0);
