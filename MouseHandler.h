@@ -19,7 +19,6 @@ const std::unordered_map<int, const char *> MOUSE_EVENT_TO_STRING{
         {VK_LBUTTON, "Left Click"}, {VK_RBUTTON, "Right Click"}
 };
 
-
 constexpr int doubleClickThresholdMS = 300;
 constexpr int doubleClickDistThreshold = 5;
 
