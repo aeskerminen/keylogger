@@ -4,6 +4,8 @@
 
 #include "MouseHandler.h"
 
+#include "EventLogger.h"
+
 std::unordered_map<int, ClickInfo> clickMap;
 
 LRESULT CALLBACK MouseCallback(const int nCode, const WPARAM wParam, const WPARAM lParam) {
@@ -44,8 +46,14 @@ LRESULT CALLBACK MouseCallback(const int nCode, const WPARAM wParam, const WPARA
 
         if (isDBLClick) {
             printf("Double %s in %s (%s)\n", MOUSE_EVENT_TO_STRING.at(button), proc_buffer, title_buffer);
+
+            std::string final = "Double " + std::string(MOUSE_EVENT_TO_STRING.at(button)) + " in " + std::string(proc_buffer) + " (" + std::string(title_buffer) + ")";
+            EventLogger::getInstance().logEvent(final);
         } else {
             printf("%s in %s (%s)\n", MOUSE_EVENT_TO_STRING.at(button), proc_buffer, title_buffer);
+
+            std::string final = std::string(MOUSE_EVENT_TO_STRING.at(button)) + " in " + std::string(proc_buffer) + " (" + std::string(title_buffer) + ")";
+            EventLogger::getInstance().logEvent(final);
         }
 
         lastClick.clickTime = curTime;
