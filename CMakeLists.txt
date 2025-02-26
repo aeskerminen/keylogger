@@ -7,7 +7,9 @@ set(CMAKE_EXE_LINKER_FLAGS "-static")
 add_executable(keylogger main.cpp
         layouts.h
         MouseHandler.cpp
-        MouseHandler.h)
+        MouseHandler.h
+        KeyboardHandler.cpp
+        KeyboardHandler.h)
 
 if(WIN32)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
