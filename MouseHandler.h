@@ -5,7 +5,7 @@
 #ifndef MOUSEHANDLER_H
 #define MOUSEHANDLER_H
 
-#include "cmake-build-debug-mingw/_deps/curl-src/lib/altsvc.h"
+#include <windows.h>
 #include <unordered_map>
 #include <Psapi.h>
 

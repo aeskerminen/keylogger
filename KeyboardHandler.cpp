@@ -1,9 +1,4 @@
-//
-// Created by akerm on 26/02/2025.
-//
-
 #include "KeyboardHandler.h"
-
 #include "EventLogger.h"
 
 
