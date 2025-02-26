@@ -9,7 +9,9 @@ add_executable(keylogger main.cpp
         MouseHandler.cpp
         MouseHandler.h
         KeyboardHandler.cpp
-        KeyboardHandler.h)
+        KeyboardHandler.h
+        EventLogger.cpp
+        EventLogger.h)
 
 if(WIN32)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
