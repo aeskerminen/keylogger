@@ -7,7 +7,14 @@
 #include <thread>
 #include <string>
 #include <atomic>
+#include <cpr/cpr.h>
+#include <iostream>
+#include <sstream>
 
+struct InputEvent {
+    std::string event;
+    std::string timestamp;
+} typedef InputEvent;
 
 class EventLogger {
 public:
@@ -21,7 +28,7 @@ private:
     ~EventLogger();
     void processQueue();
 
-    std::queue<std::string> eventQueue;
+    std::queue<InputEvent> eventQueue;
     std::mutex queueMutex;
     std::condition_variable queueCondition;
     std::thread workerThread;
