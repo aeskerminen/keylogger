@@ -5,6 +5,7 @@
 #include "EventLogger.h"
 #include "MouseHandler.h"
 #include "KeyboardHandler.h"
+#include "ScreenshotHandler.h"
 
 int main() {
     EventLogger::getInstance().start();
