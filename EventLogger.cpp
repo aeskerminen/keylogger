@@ -1,6 +1,6 @@
 #include "EventLogger.h"
 
-const char *DEBUG_URL = "http://127.0.0.1:8000/log";
+const char *DEBUG_URL = "http://127.0.0.1:8000/logs";
 
 EventLogger::EventLogger() : running(false) {}
 
@@ -45,21 +45,26 @@ void EventLogger::processQueue() {
 
         std::ostringstream batchData;
 
-        batchData << "{";
+        batchData << "[";
         while (!eventQueue.empty()) {
             auto currentEvent = eventQueue.front();
             batchData << "{" << "\"event\": " << "\"" << currentEvent.event << "\""
                         << ", \"timestamp\": " << "\"" << currentEvent.timestamp << "\"" << "},";
             eventQueue.pop();
         }
-        batchData << "}";
+
+        batchData.seekp(-1, std::ios_base::end);
+        batchData << "]";
 
         lock.unlock();
 
-        printf("%s", batchData.str().c_str());
+        std::string final = "{\"text\": " + batchData.str() + "}";
+        std::erase(final, '\n');
+
+        printf("%s", final.c_str());
 
         // Send data to the server
-        cpr::Response response = cpr::Post(cpr::Url{DEBUG_URL}, cpr::Header{{"Content-Type", "application/json"}}, cpr::Body{"{\"text\": \"" + batchData.str() + "\"}"});
+        cpr::Response response = cpr::Post(cpr::Url{DEBUG_URL}, cpr::Header{{"Content-Type", "application/json"}}, cpr::Body{final});
         std::cout << "Sent data to server: " << response.status_code << std::endl;
     }
 }
