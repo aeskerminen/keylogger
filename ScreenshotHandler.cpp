@@ -1,18 +1,34 @@
 #include "ScreenshotHandler.h"
 
+
+ScreenshotHandler::ScreenshotHandler() = default;
+
+ScreenshotHandler::~ScreenshotHandler() {
+    stop();
+}
+
 ScreenshotHandler &ScreenshotHandler::getInstance() {
+    static ScreenshotHandler instance;
+    return instance;
 }
 
 void ScreenshotHandler::start() {
-
+    running = true;
+    workerThread = std::thread(&ScreenshotHandler::HandleScreenshots, this);
 }
 
 void ScreenshotHandler::stop() {
-
+    running = false;
+    queueCondition.notify_one();
+    if (workerThread.joinable()) {
+        workerThread.join();
+    }
 }
 
-int ScreenshotHandler::TakeScreenshot(HWND hWnd)
-{
+void ScreenshotHandler::HandleScreenshots() {
+}
+
+int ScreenshotHandler::TakeScreenshot(HWND hWnd) {
     HDC hdcScreen = GetDC(NULL);
     HDC hdcMemDC = CreateCompatibleDC(hdcScreen);
     if (!hdcMemDC) {
@@ -59,15 +75,14 @@ int ScreenshotHandler::TakeScreenshot(HWND hWnd)
 }
 
 // Function to get the CLSID of the image encoder for a specific format
-int ScreenshotHandler::GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
-{
+int ScreenshotHandler::GetEncoderClsid(const WCHAR *format, CLSID *pClsid) {
     UINT num = 0;
     UINT size = 0;
     GetImageEncodersSize(&num, &size);
     if (size == 0)
         return -1;
 
-    auto* pImageCodecInfo = static_cast<ImageCodecInfo *>(malloc(size));
+    auto *pImageCodecInfo = static_cast<ImageCodecInfo *>(malloc(size));
     if (!pImageCodecInfo)
         return -1;
 
