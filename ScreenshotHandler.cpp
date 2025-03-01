@@ -1,13 +1,17 @@
 #include "ScreenshotHandler.h"
-#include <windows.h>
-#include <gdiplus.h>
-#include <iostream>
 
-#pragma comment (lib,"Gdiplus.lib")
+ScreenshotHandler &ScreenshotHandler::getInstance() {
+}
 
-using namespace Gdiplus;
+void ScreenshotHandler::start() {
 
-int TakeScreenshot(HWND hWnd)
+}
+
+void ScreenshotHandler::stop() {
+
+}
+
+int ScreenshotHandler::TakeScreenshot(HWND hWnd)
 {
     HDC hdcScreen = GetDC(NULL);
     HDC hdcMemDC = CreateCompatibleDC(hdcScreen);
@@ -55,7 +59,7 @@ int TakeScreenshot(HWND hWnd)
 }
 
 // Function to get the CLSID of the image encoder for a specific format
-int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
+int ScreenshotHandler::GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 {
     UINT num = 0;
     UINT size = 0;

