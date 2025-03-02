@@ -24,6 +24,7 @@ int main() {
     UnhookWindowsHookEx(mouse);
 
     EventLogger::getInstance().stop();
+    ScreenshotHandler::getInstance().stop();
 
     return 0;
 }
