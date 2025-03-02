@@ -19,13 +19,9 @@ void ScreenshotHandler::start() {
 
 void ScreenshotHandler::stop() {
     running = false;
-    queueCondition.notify_one();
     if (workerThread.joinable()) {
         workerThread.join();
     }
-}
-
-void ScreenshotHandler::HandleScreenshots() {
 }
 
 int ScreenshotHandler::TakeScreenshot(HWND hWnd) {
@@ -60,40 +56,54 @@ int ScreenshotHandler::TakeScreenshot(HWND hWnd) {
     ULONG_PTR gdiplusToken;
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-    Bitmap bitmap(hbmScreen, NULL);
+    const CLSID pngClsid = { 0x557cf406, 0x1a04, 0x11d3,{ 0x9a,0x73,0x00,0x00,0xf8,0x1e,0xf3,0x2e } };
 
-    CLSID pngClsid;
-    GetEncoderClsid(L"image/png", &pngClsid);
+    UUID uuid;
+    RPC_CSTR uuidStr;
+    UuidToStringA(&uuid, &uuidStr);
+    // Convert ASCII to wide string
+    std::string temp(reinterpret_cast<char*>(uuidStr));
+    std::wstring filename(temp.begin(), temp.end());
+    filename += L".png";
+    RpcStringFreeA(&uuidStr);
 
-    bitmap.Save(L"screenshot.png", &pngClsid, NULL);
+    auto* pBitmap = new Bitmap(hbmScreen, nullptr);
+    if (pBitmap->GetLastStatus() != Ok) {
+        delete pBitmap;
+        DeleteObject(hbmScreen);
+        DeleteDC(hdcMemDC);
+        ReleaseDC(NULL, hdcScreen);
+        GdiplusShutdown(gdiplusToken);
+        return -1;
+    }
+
+    pBitmap->Save(filename.c_str(), &pngClsid, nullptr);
+    delete pBitmap;
 
     DeleteObject(hbmScreen);
     DeleteDC(hdcMemDC);
-    ReleaseDC(NULL, hdcScreen);
+    ReleaseDC(nullptr, hdcScreen);
+    GdiplusShutdown(gdiplusToken);
 
     return 0;
 }
 
-// Function to get the CLSID of the image encoder for a specific format
-int ScreenshotHandler::GetEncoderClsid(const WCHAR *format, CLSID *pClsid) {
-    UINT num = 0;
-    UINT size = 0;
-    GetImageEncodersSize(&num, &size);
-    if (size == 0)
-        return -1;
+void ScreenshotHandler::HandleScreenshots() {
+    while (running) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    auto *pImageCodecInfo = static_cast<ImageCodecInfo *>(malloc(size));
-    if (!pImageCodecInfo)
-        return -1;
+        if (const HWND hWnd = GetForegroundWindow()) {
+            const size_t n = 256;
+            char buffer[n];
+            GetWindowTextA(hWnd, buffer, n);
 
-    GetImageEncoders(num, size, pImageCodecInfo);
-    for (UINT i = 0; i < num; i++) {
-        if (wcscmp(pImageCodecInfo[i].MimeType, format) == 0) {
-            *pClsid = pImageCodecInfo[i].Clsid;
-            free(pImageCodecInfo);
-            return i;
+            if (lastTitle != std::string(buffer)) {
+                printf("%s\n", "Focus changed.");
+                TakeScreenshot(nullptr);
+            }
+
+            lastTitle = std::string(buffer);
         }
     }
-    free(pImageCodecInfo);
-    return -1;
 }
+

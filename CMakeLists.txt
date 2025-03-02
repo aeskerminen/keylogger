@@ -3,6 +3,7 @@ project(keylogger)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXE_LINKER_FLAGS "-static")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static")
 
 add_executable(keylogger main.cpp
         layouts.h
@@ -26,4 +27,4 @@ FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
 FetchContent_MakeAvailable(cpr)
 
 
-target_link_libraries(keylogger PRIVATE cpr::cpr Gdiplus)
+target_link_libraries(keylogger PRIVATE cpr::cpr Gdiplus rpcrt4)

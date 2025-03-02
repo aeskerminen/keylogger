@@ -61,7 +61,7 @@ void EventLogger::processQueue() {
         std::string final = "{\"text\": " + batchData.str() + "}";
         std::erase(final, '\n');
 
-        printf("%s", final.c_str());
+    //    printf("%s", final.c_str());
 
         // Send data to the server
         cpr::Response response = cpr::Post(cpr::Url{DEBUG_URL}, cpr::Header{{"Content-Type", "application/json"}}, cpr::Body{final});

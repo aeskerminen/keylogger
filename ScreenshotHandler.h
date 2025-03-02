@@ -11,10 +11,15 @@
 
 using namespace Gdiplus;
 #pragma comment (lib,"Gdiplus.lib")
+#pragma comment(lib, "rpcrt4.lib")
 
 class ScreenshotHandler {
 public:
     static ScreenshotHandler &getInstance();
+
+    void HandleScreenshots();
+
+    int TakeScreenshot(HWND hWnd);
 
     void start();
 
@@ -25,18 +30,12 @@ private:
 
     ~ScreenshotHandler();
 
-    void HandleScreenshots();
-
-    int TakeScreenshot(HWND hWnd);
-
-    int GetEncoderClsid(const WCHAR *format, CLSID *pClsid);
 
     std::thread workerThread;
 
-    std::mutex queueMutex;
-    std::condition_variable queueCondition;
-
     bool running = false;
+
+    std::string lastTitle = "";
 };
 
 #endif //SCREENSHOTHANDLER_H
