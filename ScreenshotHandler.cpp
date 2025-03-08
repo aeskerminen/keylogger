@@ -106,4 +106,3 @@ void ScreenshotHandler::HandleScreenshots() {
         }
     }
 }
-

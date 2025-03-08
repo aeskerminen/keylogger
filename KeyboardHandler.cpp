@@ -63,10 +63,6 @@ LRESULT CALLBACK KeyboardCallback(const int nCode, const WPARAM wParam, const WP
 
         EventLogger::getInstance().logEvent(final);
 
-        //const cpr::Response r = cpr::Post(cpr::Url{DEBUG_URL}, cpr::Header{{"Content-Type", "application/json"}},
-        // cpr::Body{"{\"text\": \"" + body + "\"}"});
-
-        // printf("%s\n", r.text.c_str());
     } else if (wParam == WM_KEYUP || wParam == WM_SYSKEYUP) {
         pressedKeys.erase(kbStruct->vkCode);
     }
